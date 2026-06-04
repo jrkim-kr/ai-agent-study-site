@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Dashboard</title>
+<style>
+  :root {
+    --ink: #18212f;
+    --ink-soft: #4b5565;
+    --paper: #f7f8fb;
+    --panel: #ffffff;
+    --panel-strong: #eef2f7;
+    --line: #d7deea;
+    --line-strong: #a9b7cc;
+    --blue: #1169e6;
+    --blue-deep: #0b3f9c;
+    --green: #16794c;
+    --yellow: #8a5b00;
+    --violet: #6555c8;
+    --shadow: 0 18px 48px rgba(25, 37, 59, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 34px 22px 44px;
+    color: var(--ink);
+    font-family: "Aptos", "Source Han Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.55;
+    background:
+      linear-gradient(90deg, rgba(17, 105, 230, 0.045) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(24, 33, 47, 0.045) 1px, transparent 1px),
+      var(--paper);
+    background-size: 28px 28px;
+  }
+
+  a {
+    color: var(--blue);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Georgia", "Songti SC", serif;
+    font-size: clamp(2.4rem, 7vw, 5rem);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 0.95;
+  }
+
+  .checkin-app {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    gap: 16px;
+  }
+
+  .checkin-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+    gap: 22px;
+    align-items: end;
+    padding: 26px 0 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .checkin-kicker {
+    margin: 0 0 8px;
+    color: var(--blue-deep);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .checkin-note {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+  }
+
+  .checkin-note strong {
+    color: var(--ink);
+  }
+
+  .dashboard-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .next-session,
+  .dashboard-panel,
+  .status-strip {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--shadow);
+  }
+
+  .next-session {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border-left: 5px solid var(--blue);
+  }
+
+  .next-session h2,
+  .dashboard-panel h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+
+  .next-topic {
+    margin: 0;
+    font-family: "Georgia", "Songti SC", serif;
+    font-size: clamp(1.65rem, 3vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.02;
+  }
+
+  .next-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .next-meta span,
+  .stat-card {
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    color: var(--ink-soft);
+    padding: 7px 9px;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+
+  .next-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dashboard-side {
+    display: grid;
+    gap: 16px;
+  }
+
+  .dashboard-panel {
+    padding: 16px;
+  }
+
+  .dashboard-panel p {
+    margin: 8px 0 0;
+    color: var(--ink-soft);
+  }
+
+  .status-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .stat-card {
+    display: grid;
+    gap: 2px;
+    min-height: 68px;
+    align-content: center;
+  }
+
+  .stat-card strong {
+    color: var(--ink);
+    font-size: 1.55rem;
+    line-height: 1;
+  }
+
+  .stat-card span {
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .checkin-toolbar,
+  .checkin-editor,
+  .checkin-import {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--shadow);
+  }
+
+  .checkin-toolbar {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) 160px repeat(3, auto);
+    gap: 9px;
+    align-items: center;
+    padding: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    backdrop-filter: blur(14px);
+  }
+
+  .checkin-toolbar input,
+  .checkin-toolbar select,
+  .checkin-editor input,
+  .checkin-editor select,
+  .checkin-editor textarea,
+  .checkin-import textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 11px;
+    color: var(--ink);
+    font: inherit;
+    background: white;
+    outline: none;
+  }
+
+  .checkin-toolbar input:focus,
+  .checkin-toolbar select:focus,
+  .checkin-editor input:focus,
+  .checkin-editor select:focus,
+  .checkin-editor textarea:focus,
+  .checkin-import textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(17, 105, 230, 0.16);
+  }
+
+  .checkin-toolbar button,
+  .checkin-editor button,
+  .checkin-import button,
+  .next-actions button {
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+    background: white;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 150ms ease, color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .checkin-toolbar button:hover,
+  .checkin-editor button:hover,
+  .checkin-import button:hover,
+  .next-actions button:hover {
+    border-color: var(--blue);
+    color: var(--blue-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(25, 37, 59, 0.1);
+  }
+
+  .checkin-toolbar button.primary,
+  .checkin-editor button.primary,
+  .next-actions button.primary {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: white;
+  }
+
+  .checkin-grid {
+    overflow: auto;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+
+  .checkin-grid table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 980px;
+  }
+
+  .checkin-grid th,
+  .checkin-grid td {
+    border-bottom: 1px solid var(--line);
+    padding: 13px 14px;
+    vertical-align: top;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .checkin-grid th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--panel-strong);
+    color: #1d2737;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--line-strong);
+  }
+
+  .checkin-grid tr {
+    cursor: pointer;
+    transition: background 140ms ease;
+  }
+
+  .checkin-grid tbody tr:hover {
+    background: #f8fbff;
+  }
+
+  .checkin-grid tr.selected {
+    background: #eef5ff;
+    outline: 2px solid var(--blue);
+    outline-offset: -2px;
+  }
+
+  .badge {
+    display: inline-block;
+    min-width: 82px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    border: 1px solid transparent;
+  }
+
+  .badge.todo { background: #edf0f4; color: #4b5565; border-color: #d8dee8; }
+  .badge.reading { background: #fff2cc; color: var(--yellow); border-color: #f4d174; }
+  .badge.done { background: #daf5e5; color: var(--green); border-color: #9fdfbd; }
+  .badge.review { background: #e7e5ff; color: var(--violet); border-color: #c8c3ff; }
+
+  .record-cell {
+    color: var(--ink-soft);
+    font-size: 0.92em;
+  }
+
+  .record-note {
+    display: -webkit-box;
+    margin-top: 4px;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .checkin-editor {
+    display: none;
+    gap: 12px;
+    padding: 16px;
+    border-left: 4px solid var(--blue);
+  }
+
+  .checkin-editor.open {
+    display: grid;
+    animation: editor-in 180ms ease-out;
+  }
+
+  .editor-fields {
+    display: grid;
+    grid-template-columns: 150px 160px 1fr;
+    gap: 10px;
+  }
+
+  .editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .checkin-meta {
+    color: var(--ink-soft);
+    font-size: 0.92em;
+  }
+
+  .checkin-import {
+    display: none;
+    padding: 14px;
+  }
+
+  .checkin-import.open {
+    display: grid;
+    gap: 10px;
+  }
+
+  @keyframes editor-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 920px) {
+    body {
+      padding: 18px 12px 28px;
+    }
+
+    .checkin-hero {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .dashboard-overview {
+      grid-template-columns: 1fr;
+    }
+
+    .checkin-toolbar {
+      grid-template-columns: 1fr 1fr;
+      position: static;
+    }
+
+    .checkin-grid th {
+      top: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .checkin-toolbar,
+    .editor-fields,
+    .status-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .checkin-grid table,
+    .checkin-grid thead,
+    .checkin-grid tbody,
+    .checkin-grid tr,
+    .checkin-grid td {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .checkin-grid thead {
+      display: none;
+    }
+
+    .checkin-grid tr {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+    }
+
+    .checkin-grid td {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 8px;
+      border-bottom: 0;
+      padding: 6px 2px;
+    }
+
+    .checkin-grid td::before {
+      content: attr(data-label);
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+  }
+</style>
+<link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="study-page tool-page checkin-page">
+
+<header class="site-header site-frame">
+  <a class="site-brand" href="./">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>AI Agent Study</span>
+  </a>
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a href="./">Home</a>
+    <a href="checkin.html">Study Dashboard</a>
+    <a href="dynamic-tutorial.html">Concepts</a>
+    <a href="AI_AGENT_TUTORIAL_AND_ARCHITECTURE.html">Alex Case Study</a>
+  </nav>
+</header>
+
+<main>
+<div class="checkin-app" id="checkin-app">
+  <header class="checkin-hero">
+    <div>
+      <p class="checkin-kicker">AI Agent Study Ledger</p>
+      <h1>Study Dashboard</h1>
+    </div>
+    <p class="checkin-note">
+      在同一页查看学习计划、选择下一项任务、填写学习打卡。数据默认保存在<strong>当前浏览器</strong>,不会自动写回 GitHub 仓库。
+      换设备前请使用导出/导入。
+    </p>
+  </header>
+
+  <section class="dashboard-overview" aria-label="Study dashboard overview">
+    <div class="next-session" id="next-card">
+      <h2>下一项学习</h2>
+      <p class="checkin-meta">加载学习计划中...</p>
+    </div>
+
+    <div class="dashboard-side">
+      <div class="dashboard-panel">
+        <h2>今日节奏</h2>
+        <p>每次只处理一个 60 分钟学习块。先读资料,再写工程判断,最后把 Alex mapping 和 next action 留在打卡记录里。</p>
+      </div>
+      <div class="status-strip" id="status-cards" aria-label="Study status summary"></div>
+    </div>
+  </section>
+
+  <div class="checkin-toolbar">
+    <input id="search" type="search" placeholder="搜索编号、主题、来源或笔记">
+    <select id="status-filter">
+      <option value="">全部状态</option>
+      <option value="todo">todo</option>
+      <option value="reading">reading</option>
+      <option value="done">done</option>
+      <option value="review">review</option>
+    </select>
+    <button id="export-json">导出 JSON</button>
+    <button id="export-md">导出 Markdown</button>
+    <button id="toggle-import">导入</button>
+  </div>
+
+  <div class="checkin-import" id="import-panel">
+    <textarea id="import-text" rows="6" placeholder="粘贴之前导出的 JSON"></textarea>
+    <div class="editor-actions">
+      <button class="primary" id="import-json">导入 JSON</button>
+      <button id="clear-data">清空本地记录</button>
+    </div>
+  </div>
+
+  <div class="checkin-editor" id="editor">
+    <div>
+      <strong id="editor-title"></strong>
+      <div class="checkin-meta" id="editor-meta"></div>
+    </div>
+    <div class="editor-fields">
+      <select id="edit-status">
+        <option value="todo">todo</option>
+        <option value="reading">reading</option>
+        <option value="done">done</option>
+        <option value="review">review</option>
+      </select>
+      <input id="edit-minutes" type="number" min="0" step="5" placeholder="实际分钟">
+      <input id="edit-time" type="text" placeholder="YYYY-MM-DD HH:mm KST">
+    </div>
+    <textarea id="edit-note" rows="4" placeholder="What I learned / Alex mapping / Open question / Next action"></textarea>
+    <div class="editor-actions">
+      <button class="primary" id="save-row">保存</button>
+      <button id="mark-done">标记 done 并填当前 KST 时间</button>
+      <button id="reset-row">重置这一条</button>
+    </div>
+  </div>
+
+  <section class="plan-section" id="plan-section">
+    <div class="checkin-meta" id="summary">加载学习计划中...</div>
+
+    <div class="checkin-grid">
+      <table>
+        <colgroup>
+          <col style="width: 8%">
+          <col style="width: 12%">
+          <col style="width: 7%">
+          <col style="width: 18%">
+          <col style="width: 34%">
+          <col style="width: 7%">
+          <col style="width: 14%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>状态</th>
+            <th>日程</th>
+            <th>来源</th>
+            <th>主题</th>
+            <th>计划</th>
+            <th>记录</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="site-footer site-frame">
+  <span>AI Agent Study</span>
+  <span>Unified study plan, next task, check-in, export, and import.</span>
+</footer>
+
+<script>
+  (() => {
+    const STORAGE_KEY = "ai-agent-study-checkins-v1";
+    const FALLBACK_ROWS = [
+          {
+                "id": "D01",
+                "baseStatus": "todo",
+                "schedule": "Day 01",
+                "source": "<a href=\"https://www.anthropic.com/engineering/building-effective-agents\">L1-A: Anthropic Building effective agents</a>",
+                "sourceText": "L1-A: Anthropic Building effective agents",
+                "topic": "workflow vs agent、简单模式优先",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "F1-F6 标注 workflow / agent"
+          },
+          {
+                "id": "D02",
+                "baseStatus": "todo",
+                "schedule": "Day 02",
+                "source": "<a href=\"https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/\">L1-B: OpenAI Practical guide</a>",
+                "sourceText": "L1-B: OpenAI Practical guide",
+                "topic": "model、tools、instructions、run loop",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "画 agent 最小构件图"
+          },
+          {
+                "id": "D03",
+                "baseStatus": "todo",
+                "schedule": "Day 03",
+                "source": "<a href=\"https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/\">L1-B: OpenAI Practical guide</a>",
+                "sourceText": "L1-B: OpenAI Practical guide",
+                "topic": "orchestration、guardrails、适用场景",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Alex 哪些路径不该进 agent loop"
+          },
+          {
+                "id": "D04",
+                "baseStatus": "todo",
+                "schedule": "Day 04",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-capabilities-and-limitations\">Anthropic: AI Capabilities and Limitations</a>",
+                "sourceText": "Anthropic: AI Capabilities and Limitations",
+                "topic": "Getting started、What We Mean by AI、How AI Gets Its Character、Next Token Prediction",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一页:AI 为什么会流畅但不一定正确"
+          },
+          {
+                "id": "D05",
+                "baseStatus": "todo",
+                "schedule": "Day 05",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-capabilities-and-limitations\">Anthropic: AI Capabilities and Limitations</a>",
+                "sourceText": "Anthropic: AI Capabilities and Limitations",
+                "topic": "Knowledge、Working Memory、Steerability、When Properties Collide、quiz",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一张 4 properties 诊断表:出错时先判断是哪类问题"
+          },
+          {
+                "id": "D06",
+                "baseStatus": "todo",
+                "schedule": "Day 06",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-framework-foundations\">Anthropic: AI Fluency: Framework & Foundations</a>",
+                "sourceText": "Anthropic: AI Fluency: Framework & Foundations",
+                "topic": "AI Fluency 导论、生成式 AI 基础、能力/限制、4D 总览",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写出 4D 与 AI properties 的对应关系"
+          },
+          {
+                "id": "D07",
+                "baseStatus": "todo",
+                "schedule": "Day 07",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-framework-foundations\">Anthropic: AI Fluency: Framework & Foundations</a>",
+                "sourceText": "Anthropic: AI Fluency: Framework & Foundations",
+                "topic": "Delegation、任务适配度、何时不该交给 AI",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "整理 Delegation 判断标准和反例"
+          },
+          {
+                "id": "D08",
+                "baseStatus": "todo",
+                "schedule": "Day 08",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-framework-foundations\">Anthropic: AI Fluency: Framework & Foundations</a>",
+                "sourceText": "Anthropic: AI Fluency: Framework & Foundations",
+                "topic": "Description、Discernment、prompt/context、输出评估",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一套需求描述和输出验收 checklist"
+          },
+          {
+                "id": "D09",
+                "baseStatus": "todo",
+                "schedule": "Day 09",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-framework-foundations\">Anthropic: AI Fluency: Framework & Foundations</a>",
+                "sourceText": "Anthropic: AI Fluency: Framework & Foundations",
+                "topic": "Diligence、责任边界、最终测验和证书",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一页:哪些 AI 产出必须人工复核"
+          },
+          {
+                "id": "D10",
+                "baseStatus": "todo",
+                "schedule": "Day 10",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-for-small-businesses\">Anthropic: AI Fluency for Small Businesses</a>",
+                "sourceText": "Anthropic: AI Fluency for Small Businesses",
+                "topic": "How AI works、小企业目标/价值/约束",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一版业务场景 AI 机会诊断表"
+          },
+          {
+                "id": "D11",
+                "baseStatus": "todo",
+                "schedule": "Day 11",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-for-small-businesses\">Anthropic: AI Fluency for Small Businesses</a>",
+                "sourceText": "Anthropic: AI Fluency for Small Businesses",
+                "topic": "Using AI in practice、Description-Discernment loop、customer data",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "把一个真实业务任务改写成可交给 AI 的 workflow"
+          },
+          {
+                "id": "D12",
+                "baseStatus": "todo",
+                "schedule": "Day 12",
+                "source": "<a href=\"https://anthropic.skilljar.com/ai-fluency-for-small-businesses\">Anthropic: AI Fluency for Small Businesses</a>",
+                "sourceText": "Anthropic: AI Fluency for Small Businesses",
+                "topic": "Putting it all together、AI use policy、quiz/certificate",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一版小企业 AI 使用政策模板"
+          },
+          {
+                "id": "D13",
+                "baseStatus": "todo",
+                "schedule": "Day 13",
+                "source": "<a href=\"https://learn.microsoft.com/en-us/agents/architecture/components-of-agent-architecture\">L2-A: Microsoft Agent architecture components</a>",
+                "sourceText": "L2-A: Microsoft Agent architecture components",
+                "topic": "enterprise agent 架构分层",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "画 Alex 的 Microsoft-style component diagram"
+          },
+          {
+                "id": "D14",
+                "baseStatus": "todo",
+                "schedule": "Day 14",
+                "source": "<a href=\"https://adk.dev/get-started/about/\">L2-B: Google ADK Technical Overview</a>",
+                "sourceText": "L2-B: Google ADK Technical Overview",
+                "topic": "Agent、Tool、Session、State、Memory、Runner",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Session/State/Memory 区别"
+          },
+          {
+                "id": "D15",
+                "baseStatus": "todo",
+                "schedule": "Day 15",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-101\">Anthropic: Claude 101</a>",
+                "sourceText": "Anthropic: Claude 101",
+                "topic": "Claude 基础、对话、提示、日常工作任务",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "整理 5 个产品演示用 Claude 场景"
+          },
+          {
+                "id": "D16",
+                "baseStatus": "todo",
+                "schedule": "Day 16",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-101\">Anthropic: Claude 101</a>",
+                "sourceText": "Anthropic: Claude 101",
+                "topic": "Projects、Artifacts、Skills、连接工具、Research",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一页 Claude 功能到业务问题的映射表"
+          },
+          {
+                "id": "D17",
+                "baseStatus": "todo",
+                "schedule": "Day 17",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-claude-cowork\">Anthropic: Introduction to Claude Cowork</a>",
+                "sourceText": "Anthropic: Introduction to Claude Cowork",
+                "topic": "Cowork task loop、文件/项目协作、上下文",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一套 AI 协作工作流"
+          },
+          {
+                "id": "D18",
+                "baseStatus": "todo",
+                "schedule": "Day 18",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-claude-cowork\">Anthropic: Introduction to Claude Cowork</a>",
+                "sourceText": "Anthropic: Introduction to Claude Cowork",
+                "topic": "plugins、skills、安全协作、团队共享",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一套项目协作安全检查清单"
+          },
+          {
+                "id": "D19",
+                "baseStatus": "todo",
+                "schedule": "Day 19",
+                "source": "<a href=\"https://developers.openai.com/api/docs/guides/agents\">L3-A: OpenAI Agents SDK docs</a>",
+                "sourceText": "L3-A: OpenAI Agents SDK docs",
+                "topic": "agent run loop、state、guardrails、evals",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 agent run 的停止条件"
+          },
+          {
+                "id": "D20",
+                "baseStatus": "todo",
+                "schedule": "Day 20",
+                "source": "<a href=\"https://openai.github.io/openai-agents-python/agents/\">L3-B: OpenAI Agents SDK Python Agents</a>",
+                "sourceText": "L3-B: OpenAI Agents SDK Python Agents",
+                "topic": "Agent 和 Runner 概念",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "对比 Alex orchestrator 和 SDK Runner"
+          },
+          {
+                "id": "D21",
+                "baseStatus": "todo",
+                "schedule": "Day 21",
+                "source": "<a href=\"https://openai.github.io/openai-agents-python/multi_agent/\">L3-C: OpenAI Agents SDK Multi-agent orchestration</a>",
+                "sourceText": "L3-C: OpenAI Agents SDK Multi-agent orchestration",
+                "topic": "manager、handoff、agents-as-tools",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 manager vs handoff 判断标准"
+          },
+          {
+                "id": "D22",
+                "baseStatus": "todo",
+                "schedule": "Day 22",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-101\">Anthropic: Claude Code 101</a>",
+                "sourceText": "Anthropic: Claude Code 101",
+                "topic": "Claude Code、agentic loop、安装和第一轮 prompt",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "复述 Claude Code 和聊天式助手的区别"
+          },
+          {
+                "id": "D23",
+                "baseStatus": "todo",
+                "schedule": "Day 23",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-101\">Anthropic: Claude Code 101</a>",
+                "sourceText": "Anthropic: Claude Code 101",
+                "topic": "Explore -> Plan -> Code -> Commit、context management、code review",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "形成自己的 Claude Code 实施节奏"
+          },
+          {
+                "id": "D24",
+                "baseStatus": "todo",
+                "schedule": "Day 24",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-101\">Anthropic: Claude Code 101</a>",
+                "sourceText": "Anthropic: Claude Code 101",
+                "topic": "CLAUDE.md、subagents、skills、MCP、hooks",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版项目级 CLAUDE.md 模板"
+          },
+          {
+                "id": "D25",
+                "baseStatus": "todo",
+                "schedule": "Day 25",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-in-action\">Anthropic: Claude Code in Action</a>",
+                "sourceText": "Anthropic: Claude Code in Action",
+                "topic": "Claude Code 架构、项目 setup、添加上下文、改代码",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "记录一个完整 Explore -> Plan -> Code 案例"
+          },
+          {
+                "id": "D26",
+                "baseStatus": "todo",
+                "schedule": "Day 26",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-in-action\">Anthropic: Claude Code in Action</a>",
+                "sourceText": "Anthropic: Claude Code in Action",
+                "topic": "context 控制、custom commands、MCP servers、GitHub integration",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "列出可复用的 custom command 候选"
+          },
+          {
+                "id": "D27",
+                "baseStatus": "todo",
+                "schedule": "Day 27",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-code-in-action\">Anthropic: Claude Code in Action</a>",
+                "sourceText": "Anthropic: Claude Code in Action",
+                "topic": "hooks、Claude Code SDK、测验和证书",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一份高风险命令/写入操作 hook 需求"
+          },
+          {
+                "id": "D28",
+                "baseStatus": "todo",
+                "schedule": "Day 28",
+                "source": "<a href=\"https://developers.openai.com/api/docs/guides/tools\">L4-A: OpenAI Using tools</a>",
+                "sourceText": "L4-A: OpenAI Using tools",
+                "topic": "tools as action surface、tool risk",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "定义 read/write/destructive 工具等级"
+          },
+          {
+                "id": "D29",
+                "baseStatus": "todo",
+                "schedule": "Day 29",
+                "source": "<a href=\"https://code.claude.com/docs/en/agent-sdk/overview\">L4-B: Claude Agent SDK overview</a>",
+                "sourceText": "L4-B: Claude Agent SDK overview",
+                "topic": "Claude SDK runtime 和工具模型",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Claude SDK 接入点判断"
+          },
+          {
+                "id": "D30",
+                "baseStatus": "todo",
+                "schedule": "Day 30",
+                "source": "<a href=\"https://google.github.io/adk-docs/sessions/memory/\">L5-A: Google ADK Memory</a>",
+                "sourceText": "L5-A: Google ADK Memory",
+                "topic": "session state vs long-term memory",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Alex memory 分层原则"
+          },
+          {
+                "id": "D31",
+                "baseStatus": "todo",
+                "schedule": "Day 31",
+                "source": "<a href=\"https://openai.github.io/openai-agents-python/guardrails/\">L6-A: OpenAI Agents SDK Guardrails</a>",
+                "sourceText": "L6-A: OpenAI Agents SDK Guardrails",
+                "topic": "input/output guardrails、人类确认",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 human gate checklist"
+          },
+          {
+                "id": "D32",
+                "baseStatus": "todo",
+                "schedule": "Day 32",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "API getting started: auth、basic request、messages",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "跑通最小 API 请求并记录输入/输出"
+          },
+          {
+                "id": "D33",
+                "baseStatus": "todo",
+                "schedule": "Day 33",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "conversations、streaming、system prompts、structured output",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一个需求结构化提取 prompt"
+          },
+          {
+                "id": "D34",
+                "baseStatus": "todo",
+                "schedule": "Day 34",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "prompt engineering 和 evaluation 上半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 5 条 prompt eval case"
+          },
+          {
+                "id": "D35",
+                "baseStatus": "todo",
+                "schedule": "Day 35",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "prompt engineering 和 automated testing 下半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "做一版 prompt regression checklist"
+          },
+          {
+                "id": "D36",
+                "baseStatus": "todo",
+                "schedule": "Day 36",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "tool use 上半部分: custom tools、function calling",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "定义 3 个外部系统工具 schema"
+          },
+          {
+                "id": "D37",
+                "baseStatus": "todo",
+                "schedule": "Day 37",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "tool use 下半部分: multi-turn tools、batch tools、errors",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "给工具分 read/write/destructive 风险等级"
+          },
+          {
+                "id": "D38",
+                "baseStatus": "todo",
+                "schedule": "Day 38",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "RAG 上半部分: chunking、embeddings、hybrid search",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Alex / 项目知识库 chunking 原则"
+          },
+          {
+                "id": "D39",
+                "baseStatus": "todo",
+                "schedule": "Day 39",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "RAG 下半部分: reranking、contextual retrieval、evidence",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版回答必须带证据的验收标准"
+          },
+          {
+                "id": "D40",
+                "baseStatus": "todo",
+                "schedule": "Day 40",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "API 课内 MCP 上半部分: tools/resources/prompts",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "画 MCP primitives 到外部系统的映射"
+          },
+          {
+                "id": "D41",
+                "baseStatus": "todo",
+                "schedule": "Day 41",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "API 课内 MCP 下半部分: server/client integration",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "设计一个文件系统 MCP server 草图"
+          },
+          {
+                "id": "D42",
+                "baseStatus": "todo",
+                "schedule": "Day 42",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "Claude Code & Computer Use",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "判断哪些业务流程适合 UI automation"
+          },
+          {
+                "id": "D43",
+                "baseStatus": "todo",
+                "schedule": "Day 43",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "agents and workflows 上半部分: chaining、routing、parallelism",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "给业务流程标注 workflow / agent"
+          },
+          {
+                "id": "D44",
+                "baseStatus": "todo",
+                "schedule": "Day 44",
+                "source": "<a href=\"https://anthropic.skilljar.com/claude-with-the-anthropic-api/287725\">Anthropic: Building with the Claude API</a>",
+                "sourceText": "Anthropic: Building with the Claude API",
+                "topic": "agents and workflows 下半部分: debugging、quizzes、证书",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版 agent workflow debug checklist"
+          },
+          {
+                "id": "D45",
+                "baseStatus": "todo",
+                "schedule": "Day 45",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-model-context-protocol\">Anthropic: Introduction to Model Context Protocol</a>",
+                "sourceText": "Anthropic: Introduction to Model Context Protocol",
+                "topic": "MCP architecture、clients、servers、tools",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "跑通或复述一个最小 MCP server"
+          },
+          {
+                "id": "D46",
+                "baseStatus": "todo",
+                "schedule": "Day 46",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-model-context-protocol\">Anthropic: Introduction to Model Context Protocol</a>",
+                "sourceText": "Anthropic: Introduction to Model Context Protocol",
+                "topic": "resources、prompts、client integration、assessment",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 tools/resources/prompts 使用边界"
+          },
+          {
+                "id": "D47",
+                "baseStatus": "todo",
+                "schedule": "Day 47",
+                "source": "<a href=\"https://anthropic.skilljar.com/model-context-protocol-advanced-topics/296289\">Anthropic: Model Context Protocol: Advanced Topics</a>",
+                "sourceText": "Anthropic: Model Context Protocol: Advanced Topics",
+                "topic": "sampling、notifications、roots、file access",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版 MCP 文件访问权限原则"
+          },
+          {
+                "id": "D48",
+                "baseStatus": "todo",
+                "schedule": "Day 48",
+                "source": "<a href=\"https://anthropic.skilljar.com/model-context-protocol-advanced-topics/296289\">Anthropic: Model Context Protocol: Advanced Topics</a>",
+                "sourceText": "Anthropic: Model Context Protocol: Advanced Topics",
+                "topic": "stdio、StreamableHTTP、state、production transport",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "选型:本地开发工具用 stdio 还是 HTTP"
+          },
+          {
+                "id": "D49",
+                "baseStatus": "todo",
+                "schedule": "Day 49",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-agent-skills\">Anthropic: Introduction to agent skills</a>",
+                "sourceText": "Anthropic: Introduction to agent skills",
+                "topic": "Skills 基础、SKILL.md、触发描述、目录结构",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一个需求访谈 Skill 草案"
+          },
+          {
+                "id": "D50",
+                "baseStatus": "todo",
+                "schedule": "Day 50",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-agent-skills\">Anthropic: Introduction to agent skills</a>",
+                "sourceText": "Anthropic: Introduction to agent skills",
+                "topic": "allowed-tools、多文件 skill、分享、troubleshooting",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一套项目实施 skills 列表"
+          },
+          {
+                "id": "D51",
+                "baseStatus": "todo",
+                "schedule": "Day 51",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-subagents\">Anthropic: Introduction to subagents</a>",
+                "sourceText": "Anthropic: Introduction to subagents",
+                "topic": "subagents、上下文隔离、任务委派",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "设计 researcher / implementer / reviewer 三个 subagent"
+          },
+          {
+                "id": "D52",
+                "baseStatus": "todo",
+                "schedule": "Day 52",
+                "source": "<a href=\"https://anthropic.skilljar.com/introduction-to-subagents\">Anthropic: Introduction to subagents</a>",
+                "sourceText": "Anthropic: Introduction to subagents",
+                "topic": "specialized workflows、主对话清洁、测验和证书",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版 subagent 使用边界和反模式"
+          },
+          {
+                "id": "D53",
+                "baseStatus": "todo",
+                "schedule": "Day 53",
+                "source": "<a href=\"https://platform.openai.com/docs/guides/agent-evals\">L7-A: OpenAI Agent evals</a>",
+                "sourceText": "L7-A: OpenAI Agent evals",
+                "topic": "agent workflow evaluation",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "设计一组 agent task eval"
+          },
+          {
+                "id": "D54",
+                "baseStatus": "todo",
+                "schedule": "Day 54",
+                "source": "<a href=\"https://developers.openai.com/api/docs/guides/evals\">L7-B: OpenAI Working with evals</a>",
+                "sourceText": "L7-B: OpenAI Working with evals",
+                "topic": "eval methodology and datasets",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 eval dataset 结构"
+          },
+          {
+                "id": "D55",
+                "baseStatus": "todo",
+                "schedule": "Day 55",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/evaluating-ai-agents/\">L7-C: DeepLearning.AI Evaluating AI Agents</a>",
+                "sourceText": "L7-C: DeepLearning.AI Evaluating AI Agents",
+                "topic": "agent evaluation practice 上半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一版项目验收 eval"
+          },
+          {
+                "id": "D56",
+                "baseStatus": "todo",
+                "schedule": "Day 56",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/evaluating-ai-agents/\">L7-C: DeepLearning.AI Evaluating AI Agents</a>",
+                "sourceText": "L7-C: DeepLearning.AI Evaluating AI Agents",
+                "topic": "agent evaluation practice 下半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "把 eval 映射到 Alex F3/F4"
+          },
+          {
+                "id": "D57",
+                "baseStatus": "todo",
+                "schedule": "Day 57",
+                "source": "<a href=\"https://resources.anthropic.com/building-effective-ai-agents\">L8-A: Anthropic Building Effective AI Agents resource</a>",
+                "sourceText": "L8-A: Anthropic Building Effective AI Agents resource",
+                "topic": "production-ready patterns 上半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "摘出 5 个生产反模式"
+          },
+          {
+                "id": "D58",
+                "baseStatus": "todo",
+                "schedule": "Day 58",
+                "source": "<a href=\"https://resources.anthropic.com/building-effective-ai-agents\">L8-A: Anthropic Building Effective AI Agents resource</a>",
+                "sourceText": "L8-A: Anthropic Building Effective AI Agents resource",
+                "topic": "production-ready patterns 下半部分",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 Alex production gap list"
+          },
+          {
+                "id": "D59",
+                "baseStatus": "todo",
+                "schedule": "Day 59",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "reflection",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "记录 reflection 是否适合 Alex"
+          },
+          {
+                "id": "D60",
+                "baseStatus": "todo",
+                "schedule": "Day 60",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "tool use",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "复盘 tool risk 设计"
+          },
+          {
+                "id": "D61",
+                "baseStatus": "todo",
+                "schedule": "Day 61",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "planning",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写 planning 适用/不适用场景"
+          },
+          {
+                "id": "D62",
+                "baseStatus": "todo",
+                "schedule": "Day 62",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "multi-agent workflows",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "设计 future agent team 草图"
+          },
+          {
+                "id": "D63",
+                "baseStatus": "todo",
+                "schedule": "Day 63",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "external tools、evaluation",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "补齐 eval 和 tool telemetry"
+          },
+          {
+                "id": "D64",
+                "baseStatus": "todo",
+                "schedule": "Day 64",
+                "source": "<a href=\"https://www.deeplearning.ai/courses/agentic-ai\">L9-A: DeepLearning.AI Agentic AI</a>",
+                "sourceText": "L9-A: DeepLearning.AI Agentic AI",
+                "topic": "optimization、course wrap-up",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "写一页课程总复盘"
+          },
+          {
+                "id": "D65",
+                "baseStatus": "todo",
+                "schedule": "Day 65",
+                "source": "Anthropic 课程复盘",
+                "sourceText": "Anthropic 课程复盘",
+                "topic": "证书整理、公开展示材料映射",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "更新课程证书记录和公开简介草稿"
+          },
+          {
+                "id": "D66",
+                "baseStatus": "todo",
+                "schedule": "Day 66",
+                "source": "Anthropic + official docs 总复盘",
+                "sourceText": "Anthropic + official docs 总复盘",
+                "topic": "AI agent 应用方法论文档",
+                "planned": "60",
+                "baseTime": "",
+                "baseMinutes": "",
+                "baseNote": "输出一页:如何把业务问题建模成 AI workflow"
+          }
+    ];
+    const state = {
+      rows: [],
+      records: loadRecords(),
+      selectedId: null,
+      filter: "",
+      status: ""
+    };
+
+    const el = {
+      rows: document.getElementById("rows"),
+      planSection: document.getElementById("plan-section"),
+      nextCard: document.getElementById("next-card"),
+      statusCards: document.getElementById("status-cards"),
+      summary: document.getElementById("summary"),
+      search: document.getElementById("search"),
+      statusFilter: document.getElementById("status-filter"),
+      editor: document.getElementById("editor"),
+      editorTitle: document.getElementById("editor-title"),
+      editorMeta: document.getElementById("editor-meta"),
+      editStatus: document.getElementById("edit-status"),
+      editMinutes: document.getElementById("edit-minutes"),
+      editTime: document.getElementById("edit-time"),
+      editNote: document.getElementById("edit-note"),
+      saveRow: document.getElementById("save-row"),
+      markDone: document.getElementById("mark-done"),
+      resetRow: document.getElementById("reset-row"),
+      exportJson: document.getElementById("export-json"),
+      exportMd: document.getElementById("export-md"),
+      toggleImport: document.getElementById("toggle-import"),
+      importPanel: document.getElementById("import-panel"),
+      importText: document.getElementById("import-text"),
+      importJson: document.getElementById("import-json"),
+      clearData: document.getElementById("clear-data")
+    };
+
+    boot();
+
+    async function boot() {
+      try {
+        state.rows = await loadPlanRows();
+        bindEvents();
+        render();
+      } catch (error) {
+        el.summary.textContent = `加载失败: ${error.message}`;
+      }
+    }
+
+    async function loadPlanRows() {
+      try {
+        const response = await fetch("AI_AGENT_READING_LOG.html", { cache: "no-store" });
+        if (!response.ok) throw new Error(`无法读取 AI_AGENT_READING_LOG.html (${response.status})`);
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const parsedRows = parsePlanTables([...doc.querySelectorAll("table")]);
+        if (parsedRows.length > 0) return parsedRows;
+      } catch (error) {
+        console.info("Using embedded plan data because fetch failed.", error);
+      }
+
+      return FALLBACK_ROWS;
+    }
+
+    function parsePlanTables(tables) {
+      const rows = [];
+
+      for (const table of tables) {
+        for (const tr of table.querySelectorAll("tbody tr")) {
+          const cells = [...tr.children].map((cell) => cell.textContent.trim().replace(/\s+/g, " "));
+          const id = cells[0] || "";
+          if (!/^D\d{2}$/.test(id)) continue;
+
+          rows.push({
+            id,
+            baseStatus: cells[1] || "todo",
+            schedule: cells.length === 9 ? cells[2] : "",
+            source: getCellHtml(tr.children[cells.length === 9 ? 3 : 2]),
+            sourceText: cells.length === 9 ? cells[3] : cells[2],
+            topic: cells.length === 9 ? cells[4] : cells[3],
+            planned: cells.length === 9 ? cells[5] : cells[4],
+            baseTime: cells.length === 9 ? cells[6] : cells[5],
+            baseMinutes: cells.length === 9 ? cells[7] : cells[6],
+            baseNote: cells.length === 9 ? cells[8] : cells[7]
+          });
+        }
+      }
+
+      return rows;
+    }
+
+    function getCellHtml(cell) {
+      if (!cell) return "";
+      return externalizeLinks(cell.innerHTML.trim());
+    }
+
+    function externalizeLinks(html) {
+      if (!html) return "";
+      const template = document.createElement("template");
+      template.innerHTML = html;
+      template.content.querySelectorAll("a[href]").forEach((link) => {
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      });
+      return template.innerHTML.trim();
+    }
+
+    function bindEvents() {
+      el.search.addEventListener("input", () => {
+        state.filter = el.search.value.trim().toLowerCase();
+        render();
+      });
+
+      el.statusFilter.addEventListener("change", () => {
+        state.status = el.statusFilter.value;
+        render();
+      });
+
+      el.saveRow.addEventListener("click", saveSelected);
+      el.markDone.addEventListener("click", () => {
+        el.editStatus.value = "done";
+        if (!el.editTime.value.trim()) el.editTime.value = nowKst();
+        saveSelected();
+      });
+      el.resetRow.addEventListener("click", resetSelected);
+      el.exportJson.addEventListener("click", exportJson);
+      el.exportMd.addEventListener("click", exportMarkdown);
+      el.toggleImport.addEventListener("click", () => el.importPanel.classList.toggle("open"));
+      el.importJson.addEventListener("click", importJson);
+      el.clearData.addEventListener("click", clearData);
+    }
+
+    function render() {
+      const visible = filteredRows();
+      const counts = countStatuses();
+
+      el.summary.textContent = `共 ${state.rows.length} 条, 当前显示 ${visible.length} 条。done ${counts.done || 0}, reading ${counts.reading || 0}, review ${counts.review || 0}, todo ${counts.todo || 0}.`;
+      renderOverview(counts);
+
+      el.rows.innerHTML = visible.map((row) => {
+        const record = recordFor(row.id);
+        const status = statusFor(row);
+        const recordSummary = formatRecordSummary(row, record);
+        const selected = row.id === state.selectedId ? " class=\"selected\"" : "";
+        return `
+          <tr data-id="${escapeHtml(row.id)}"${selected}>
+            <td data-label="编号">${escapeHtml(row.id)}</td>
+            <td data-label="状态"><span class="badge ${escapeHtml(status)}">${escapeHtml(status)}</span></td>
+            <td data-label="日程">${escapeHtml(row.schedule)}</td>
+            <td data-label="来源">${externalizeLinks(row.source)}</td>
+            <td data-label="主题">${escapeHtml(row.topic)}</td>
+            <td data-label="计划">${escapeHtml(row.planned)}</td>
+            <td data-label="记录">${recordSummary}</td>
+          </tr>
+        `;
+      }).join("");
+
+      el.rows.querySelectorAll("tr").forEach((tr) => {
+        tr.addEventListener("click", () => selectRow(tr.dataset.id));
+      });
+
+      if (state.selectedId) renderEditor();
+    }
+
+    function renderOverview(counts) {
+      const next = nextRow();
+      if (!next) {
+        el.nextCard.innerHTML = `
+          <h2>下一项学习</h2>
+          <p class="next-topic">所有主线任务已完成</p>
+          <p class="checkin-meta">可以筛选 review 项做二刷,或导出 Markdown 汇总学习记录。</p>
+        `;
+      } else {
+        el.nextCard.innerHTML = `
+          <h2>下一项学习</h2>
+          <p class="next-topic">${escapeHtml(next.topic)}</p>
+          <div class="next-meta">
+            <span>${escapeHtml(next.id)}</span>
+            <span>${escapeHtml(next.schedule || "Official Docs Tracker")}</span>
+            <span>${escapeHtml(statusFor(next))}</span>
+            <span>${escapeHtml(next.planned)} min</span>
+          </div>
+          <div class="checkin-meta">${externalizeLinks(next.source)}</div>
+          <div class="checkin-meta"><strong>预期产出:</strong> ${escapeHtml(next.baseNote || "写 5-10 条工程判断和 Alex mapping")}</div>
+          <div class="next-actions">
+            <button class="primary" id="open-next" type="button">打开打卡</button>
+            <button id="course-guide" type="button">课程说明</button>
+          </div>
+        `;
+        document.getElementById("open-next").addEventListener("click", () => selectRow(next.id));
+        document.getElementById("course-guide").addEventListener("click", () => {
+          window.location.href = "OFFICIAL_AI_AGENT_STUDY_GUIDE.html";
+        });
+      }
+
+      el.statusCards.innerHTML = ["todo", "reading", "done", "review"].map((status) => `
+        <div class="stat-card">
+          <strong>${counts[status] || 0}</strong>
+          <span>${status}</span>
+        </div>
+      `).join("");
+    }
+
+    function nextRow() {
+      return state.rows.find((row) => statusFor(row) === "reading")
+        || state.rows.find((row) => statusFor(row) === "todo")
+        || state.rows.find((row) => statusFor(row) === "review")
+        || null;
+    }
+
+    function filteredRows() {
+      return state.rows.filter((row) => {
+        const record = recordFor(row.id);
+        const status = statusFor(row);
+        const haystack = [
+          row.id, row.schedule, row.sourceText, row.topic, row.planned,
+          record.time, record.minutes, record.note
+        ].join(" ").toLowerCase();
+
+        if (state.status && status !== state.status) return false;
+        if (state.filter && !haystack.includes(state.filter)) return false;
+        return true;
+      });
+    }
+
+    function selectRow(id) {
+      state.selectedId = id;
+      render();
+      el.editor.classList.add("open");
+      renderEditor();
+      el.editor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function renderEditor() {
+      const row = state.rows.find((item) => item.id === state.selectedId);
+      if (!row) return;
+      const record = recordFor(row.id);
+
+      el.editorTitle.textContent = `${row.id} - ${row.topic}`;
+      el.editorMeta.textContent = `${row.schedule || "Official Docs Tracker"} · ${row.sourceText} · planned ${row.planned} min`;
+      el.editStatus.value = record.status || row.baseStatus || "todo";
+      el.editMinutes.value = record.minutes || row.baseMinutes || "";
+      el.editTime.value = record.time || row.baseTime || "";
+      el.editNote.value = record.note || row.baseNote || "";
+    }
+
+    function saveSelected() {
+      if (!state.selectedId) return;
+      state.records[state.selectedId] = {
+        status: el.editStatus.value,
+        minutes: el.editMinutes.value.trim(),
+        time: el.editTime.value.trim(),
+        note: el.editNote.value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      saveRecords();
+      render();
+    }
+
+    function resetSelected() {
+      if (!state.selectedId) return;
+      delete state.records[state.selectedId];
+      saveRecords();
+      render();
+    }
+
+    function recordFor(id) {
+      return state.records[id] || {};
+    }
+
+    function statusFor(row) {
+      return recordFor(row.id).status || row.baseStatus || "todo";
+    }
+
+    function formatRecordSummary(row, record) {
+      const time = record.time || row.baseTime || "";
+      const minutes = record.minutes || row.baseMinutes || "";
+      const note = record.note || row.baseNote || "";
+      if (!time && !minutes && !note) return '<span class="checkin-meta">点击填写</span>';
+
+      const parts = [];
+      if (time) parts.push(escapeHtml(time));
+      if (minutes) parts.push(`${escapeHtml(minutes)} min`);
+      const line = parts.length ? `<div>${parts.join(" · ")}</div>` : "";
+      const noteLine = note ? `<div class="record-note">${escapeHtml(note)}</div>` : "";
+      return `<div class="record-cell">${line}${noteLine}</div>`;
+    }
+
+    function countStatuses() {
+      return state.rows.reduce((acc, row) => {
+        const status = statusFor(row);
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records, null, 2));
+    }
+
+    function exportJson() {
+      download("ai-agent-study-checkins.json", JSON.stringify(state.records, null, 2), "application/json");
+    }
+
+    function exportMarkdown() {
+      const lines = ["# AI Agent Study Check-ins", ""];
+      for (const row of state.rows) {
+        const record = recordFor(row.id);
+        if (!record.status && !record.minutes && !record.time && !record.note) continue;
+        lines.push(`## ${row.id} - ${row.topic}`);
+        lines.push("");
+        lines.push(`- Status: ${record.status || row.baseStatus || "todo"}`);
+        lines.push(`- Actual minutes: ${record.minutes || ""}`);
+        lines.push(`- read_at_kst: ${record.time || ""}`);
+        lines.push(`- Notes: ${record.note || ""}`);
+        lines.push("");
+      }
+      download("ai-agent-study-checkins.md", lines.join("\n"), "text/markdown");
+    }
+
+    function importJson() {
+      try {
+        const imported = JSON.parse(el.importText.value);
+        if (!imported || typeof imported !== "object" || Array.isArray(imported)) {
+          throw new Error("JSON root must be an object");
+        }
+        state.records = imported;
+        saveRecords();
+        render();
+        el.importPanel.classList.remove("open");
+      } catch (error) {
+        alert(`导入失败: ${error.message}`);
+      }
+    }
+
+    function clearData() {
+      if (!confirm("确认清空当前浏览器里的所有打卡记录?")) return;
+      state.records = {};
+      saveRecords();
+      render();
+    }
+
+    function download(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function nowKst() {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).formatToParts(new Date()).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+      return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute} KST`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  })();
+</script>
+</body>
+</html>

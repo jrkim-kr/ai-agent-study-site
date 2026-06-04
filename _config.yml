@@ -1,0 +1,11 @@
+title: AI Agent Study
+description: AI Agent learning path, official docs tracker, and Alex architecture notes.
+theme: minima
+markdown: kramdown
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"

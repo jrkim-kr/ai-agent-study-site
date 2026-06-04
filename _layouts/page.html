@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="{{ page.lang | default: 'zh-CN' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title }} | {{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+</head>
+<body class="study-page doc-page">
+  <header class="site-header site-frame">
+    <a class="site-brand" href="{{ '/' | relative_url }}">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>AI Agent Study</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <a href="{{ '/checkin.html' | relative_url }}">Study Dashboard</a>
+      <a href="{{ '/dynamic-tutorial.html' | relative_url }}">Concepts</a>
+      <a href="{{ '/AI_AGENT_TUTORIAL_AND_ARCHITECTURE.html' | relative_url }}">Alex Case Study</a>
+    </nav>
+  </header>
+
+  <main class="site-frame page-shell">
+    <section class="page-hero">
+      <p class="eyebrow">Study Control Surface</p>
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}
+      <p>{{ page.description }}</p>
+      {% endif %}
+    </section>
+
+    <article class="prose">
+      {{ content }}
+    </article>
+  </main>
+
+  <footer class="site-footer site-frame">
+    <span>AI Agent Study</span>
+    <span>Static learning system for agent roadmaps, Alex case analysis, tools, memory, guardrails, and evaluation.</span>
+  </footer>
+</body>
+</html>
